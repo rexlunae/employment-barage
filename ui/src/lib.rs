@@ -11,9 +11,8 @@ pub mod routes;
 // Re-export main components for easy access
 pub use components::Dashboard;
 pub use components::ResumeUpload;
-pub use components::Hero;
 pub use components::Navbar;
-pub use components::Echo;
+pub use components::{App, SimpleApp};
 
 // Re-export additional components
 pub use profile::ProfileManager;
@@ -55,5 +54,6 @@ pub use dioxus_bootstrap::{
     Modal, ModalHeader, ModalBody, ModalFooter, ModalSize,
     Alert, AlertVariant,
     Badge, BadgeVariant,
-    Dropdown, DropdownMenu, DropdownItem
+    Dropdown, DropdownMenu, DropdownItem,
+    GlobalTheme
 };

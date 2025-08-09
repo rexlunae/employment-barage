@@ -1,16 +1,6 @@
-use dioxus::prelude::*;
-use ui::Route;
+use ui::SimpleApp;
 
 fn main() {
-    dioxus::launch(App);
-}
-
-#[component]
-fn App() -> Element {
-    // Build cool things ✌️
-
-    rsx! {
-        Router::<Route> {}
-    }
+    dioxus::launch(SimpleApp);
 }
 
