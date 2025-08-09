@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
-use crate::{Container, Row, Col, Card, CardBody, Button, ButtonVariant, Size};
+use crate::{Container, Row, Col, Card, CardBody, Button, ButtonVariant, Size, SharedNavigation};
 use api;
 
 #[component]
-pub fn Dashboard(navigation: Element) -> Element {
+pub fn Dashboard() -> Element {
     let mut user_profile = use_signal(|| None);
 
     let handle_resume_upload = move |parsed: api::ParsedResume| {
@@ -12,7 +12,7 @@ pub fn Dashboard(navigation: Element) -> Element {
 
     rsx! { 
         div { class: "min-vh-100",
-            {navigation}
+            SharedNavigation {}
             
             main { class: "py-4",
                 Container {

@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
+use crate::SharedNavigation;
 
 #[component]
-pub fn Jobs(navigation: Element) -> Element {
+pub fn Jobs() -> Element {
     rsx! { 
         div { class: "min-vh-100",
-            {navigation}
+            SharedNavigation {}
             
             main { class: "py-4",
                 // Job search component

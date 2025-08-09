@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
+use crate::SharedNavigation;
 
 #[component]
-pub fn Resumes(navigation: Element) -> Element {
+pub fn Resumes() -> Element {
     rsx! { 
         div { class: "min-vh-100",
-            {navigation}
+            SharedNavigation {}
             
             main { class: "py-4",
                 // Resume builder component

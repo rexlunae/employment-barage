@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
+use crate::SharedNavigation;
 
 #[component]
-pub fn Profile(navigation: Element) -> Element {
+pub fn Profile() -> Element {
     rsx! { 
         div { class: "min-vh-100",
-            {navigation}
+            SharedNavigation {}
             
             main { class: "py-4",
                 // Profile manager component
