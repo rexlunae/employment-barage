@@ -41,22 +41,22 @@ cargo clippy -p <crate>   # Lint specific crate
 ## Architecture
 
 ### Workspace Structure
-- **`ui/`** - Shared UI components (Hero, Navbar, Echo) used across all platforms
+- **`ui/`** - Shared UI components, views, and navigation used across all platforms
 - **`api/`** - Shared backend server functions and API logic
-- **`web/`** - Web-specific entry point and views
-- **`desktop/`** - Desktop-specific entry point and views  
-- **`mobile/`** - Mobile-specific entry point and views
+- **`web/`** - Web-specific entry point with platform-specific navigation
+- **`desktop/`** - Desktop-specific entry point with platform-specific navigation
+- **`mobile/`** - Mobile-specific entry point with platform-specific navigation
 
-### Platform Pattern
-Each platform crate follows the same structure:
-- `main.rs` - Entry point with platform-specific routing setup
-- `views/` - Platform-specific view implementations
-- `assets/` - Platform-specific assets and styling
+### Shared Architecture (Consolidated)
+- **All view logic is centralized in `ui/src/views/`** - Dashboard, Profile, Resumes, Jobs, Applications
+- **SharedNavigation component in `ui/src/shared_navigation.rs`** - Accepts navigation links as children
+- **Platform-specific main.rs files** - Define routes and pass platform-specific navigation to shared views
+- **Consistent routing across all platforms** - `/`, `/profile`, `/resumes`, `/jobs`, `/applications`
 
 ### Shared Components
-- UI components in `ui/src/` are re-exported through `lib.rs`
+- UI components and views in `ui/src/` are re-exported through `lib.rs`
 - Server functions in `api/src/lib.rs` use `#[server]` macro for fullstack integration
-- Each platform wraps shared components with platform-specific routing
+- Views accept navigation as props, allowing platform customization while sharing core logic
 
 ### Key Dependencies
 - **Dioxus 0.6.0** - Main framework with router support
@@ -92,9 +92,25 @@ Located in `api/src/`:
 
 ## Development Notes
 
-- Each platform starts with identical UI but can diverge independently
+- **Shared architecture**: All platforms use identical views from `ui/src/views/` with platform-specific navigation
+- **Desktop limitations**: Desktop builds require system GTK/GDK libraries. To run desktop, use `dx serve --platform desktop` after installing required system dependencies
 - Server functions in `api/` are automatically collected when using `dx serve`
 - Assets are platform-specific and loaded using the `asset!` macro
 - Routes are defined per-platform using Dioxus router macros
 - Bootstrap CSS and Font Awesome icons are loaded via CDN
 - File upload uses web-sys APIs for browser compatibility
+
+## Platform-Specific Notes
+
+### Web Platform
+- Fully functional with `dx serve` from web directory
+- Uses web-specific features and browser APIs
+
+### Desktop Platform  
+- Requires GTK/GDK system libraries for full desktop functionality
+- Can build without desktop features for testing: `cargo build -p desktop`
+- To run with desktop features: `dx serve --platform desktop --features desktop`
+
+### Mobile Platform
+- Similar limitations as desktop for native mobile features
+- Can build without mobile features for testing: `cargo build -p mobile`

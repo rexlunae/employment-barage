@@ -1,7 +1,8 @@
 use dioxus::prelude::*;
 use dioxus_bootstrap::*;
-use api::{Job, JobSource, search_jobs, generate_cover_letter, apply_to_job, JobApplication, ApplicationStatus};
+use api::{Job, JobSource, search_jobs, generate_cover_letter, apply_to_job};
 use api::job_service::CoverLetterTone;
+use crate::Label;
 
 #[component]
 pub fn JobSearch() -> Element {
@@ -35,7 +36,7 @@ pub fn JobSearch() -> Element {
     };
 
     rsx! {
-        Container { fluid: true,
+        Container {
             Row {
                 Col { lg: 4,
                     Card {
@@ -47,36 +48,36 @@ pub fn JobSearch() -> Element {
                                 div { class: "mb-3",
                                     Label { r#for: "search-query", class: "form-label", "Keywords" }
                                     Input {
-                                        r#type: "text",
+                                        input_type: InputType::Text,
                                         id: "search-query",
                                         class: "form-control",
                                         placeholder: "e.g. Software Engineer, Data Scientist",
                                         value: search_query(),
-                                        oninput: move |evt| search_query.set(evt.value())
+                                        oninput: move |evt: Event<FormData>| search_query.set(evt.value())
                                     }
                                 }
                                 
                                 div { class: "mb-3",
                                     Label { r#for: "location", class: "form-label", "Location" }
                                     Input {
-                                        r#type: "text",
+                                        input_type: InputType::Text,
                                         id: "location",
                                         class: "form-control",
                                         placeholder: "City, State or Remote",
                                         value: location(),
-                                        oninput: move |evt| location.set(evt.value())
+                                        oninput: move |evt: Event<FormData>| location.set(evt.value())
                                     }
                                 }
                                 
                                 div { class: "mb-3",
                                     Label { r#for: "min-salary", class: "form-label", "Minimum Salary (USD)" }
                                     Input {
-                                        r#type: "number",
+                                        input_type: InputType::Number,
                                         id: "min-salary",
                                         class: "form-control",
                                         placeholder: "e.g. 80000",
                                         value: min_salary().map(|s| s.to_string()).unwrap_or_default(),
-                                        oninput: move |evt| {
+                                        oninput: move |evt: Event<FormData>| {
                                             let val = evt.value();
                                             min_salary.set(val.parse::<u32>().ok());
                                         }
@@ -85,72 +86,60 @@ pub fn JobSearch() -> Element {
                                 
                                 div { class: "mb-3",
                                     Label { class: "form-label", "Job Sources" }
-                                    div { class: "form-check",
-                                        input {
-                                            class: "form-check-input",
-                                            r#type: "checkbox",
-                                            id: "linkedin",
-                                            checked: selected_sources().contains(&JobSource::LinkedIn),
-                                            onchange: move |evt| {
-                                                let mut sources = selected_sources();
-                                                if evt.checked() {
-                                                    if !sources.contains(&JobSource::LinkedIn) {
-                                                        sources.push(JobSource::LinkedIn);
-                                                    }
-                                                } else {
-                                                    sources.retain(|s| s != &JobSource::LinkedIn);
+                                    Checkbox {
+                                        id: "linkedin",
+                                        label: Some("LinkedIn".to_string()),
+                                        checked: selected_sources().contains(&JobSource::LinkedIn),
+                                        onchange: move |evt: Event<FormData>| {
+                                            let mut sources = selected_sources();
+                                            if evt.checked() {
+                                                if !sources.contains(&JobSource::LinkedIn) {
+                                                    sources.push(JobSource::LinkedIn);
                                                 }
-                                                selected_sources.set(sources);
+                                            } else {
+                                                sources.retain(|s| s != &JobSource::LinkedIn);
                                             }
+                                            selected_sources.set(sources);
                                         }
-                                        Label { r#for: "linkedin", class: "form-check-label", "LinkedIn" }
                                     }
-                                    div { class: "form-check",
-                                        input {
-                                            class: "form-check-input",
-                                            r#type: "checkbox",
-                                            id: "indeed",
-                                            checked: selected_sources().contains(&JobSource::Indeed),
-                                            onchange: move |evt| {
-                                                let mut sources = selected_sources();
-                                                if evt.checked() {
-                                                    if !sources.contains(&JobSource::Indeed) {
-                                                        sources.push(JobSource::Indeed);
-                                                    }
-                                                } else {
-                                                    sources.retain(|s| s != &JobSource::Indeed);
+                                    Checkbox {
+                                        id: "indeed",
+                                        label: Some("Indeed".to_string()),
+                                        checked: selected_sources().contains(&JobSource::Indeed),
+                                        onchange: move |evt: Event<FormData>| {
+                                            let mut sources = selected_sources();
+                                            if evt.checked() {
+                                                if !sources.contains(&JobSource::Indeed) {
+                                                    sources.push(JobSource::Indeed);
                                                 }
-                                                selected_sources.set(sources);
+                                            } else {
+                                                sources.retain(|s| s != &JobSource::Indeed);
                                             }
+                                            selected_sources.set(sources);
                                         }
-                                        Label { r#for: "indeed", class: "form-check-label", "Indeed" }
                                     }
-                                    div { class: "form-check",
-                                        input {
-                                            class: "form-check-input",
-                                            r#type: "checkbox",
-                                            id: "glassdoor",
-                                            checked: selected_sources().contains(&JobSource::Glassdoor),
-                                            onchange: move |evt| {
-                                                let mut sources = selected_sources();
-                                                if evt.checked() {
-                                                    if !sources.contains(&JobSource::Glassdoor) {
-                                                        sources.push(JobSource::Glassdoor);
-                                                    }
-                                                } else {
-                                                    sources.retain(|s| s != &JobSource::Glassdoor);
+                                    Checkbox {
+                                        id: "glassdoor",
+                                        label: Some("Glassdoor".to_string()),
+                                        checked: selected_sources().contains(&JobSource::Glassdoor),
+                                        onchange: move |evt: Event<FormData>| {
+                                            let mut sources = selected_sources();
+                                            if evt.checked() {
+                                                if !sources.contains(&JobSource::Glassdoor) {
+                                                    sources.push(JobSource::Glassdoor);
                                                 }
-                                                selected_sources.set(sources);
+                                            } else {
+                                                sources.retain(|s| s != &JobSource::Glassdoor);
                                             }
+                                            selected_sources.set(sources);
                                         }
-                                        Label { r#for: "glassdoor", class: "form-check-label", "Glassdoor" }
                                     }
                                 }
                                 
                                 div { class: "d-grid",
                                     Button {
-                                        color: ButtonColor::Primary,
-                                        size: ButtonSize::Large,
+                                        variant: ButtonVariant::Primary,
+                                        size: Size::Large,
                                         disabled: is_searching(),
                                         onclick: handle_search,
                                         if is_searching() {
@@ -172,7 +161,10 @@ pub fn JobSearch() -> Element {
                     div { class: "d-flex justify-content-between align-items-center mb-3",
                         h4 { "Search Results" }
                         if !jobs().is_empty() {
-                            Badge { color: BadgeColor::Info, "{jobs().len()} jobs found" }
+                            Badge { 
+                                variant: BadgeVariant::Info, 
+                                {format!("{} jobs found", jobs().len())}
+                            }
                         }
                     }
                     
@@ -217,7 +209,8 @@ pub fn JobSearch() -> Element {
 
 #[component]
 fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
-    let source_color = match job.source {
+    let job_clone = job.clone();
+    let _source_color = match job.source {
         JobSource::LinkedIn => "primary",
         JobSource::Indeed => "success", 
         JobSource::Glassdoor => "info",
@@ -243,30 +236,30 @@ fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
                                 href: job.source_url.clone(),
                                 target: "_blank",
                                 class: "text-decoration-none",
-                                "{job.title}"
+                                {job.title.clone()}
                             }
                         }
-                        h6 { class: "text-primary mb-2", "{job.company}" }
+                        h6 { class: "text-primary mb-2", {job.company.clone()} }
                         p { class: "text-muted mb-2",
                             i { class: "fas fa-map-marker-alt me-1" }
-                            "{job.location}"
+                            {job.location.clone()}
                         }
                     }
                     div { class: "text-end",
                         Badge { 
-                            color: BadgeColor::from_str(source_color).unwrap_or(BadgeColor::Secondary),
+                            variant: BadgeVariant::Secondary,
                             class: "mb-2",
-                            "{source_name}"
+                            {source_name}
                         }
                         if let Some(salary) = &job.salary_range {
                             div { class: "text-success fw-bold",
-                                "${salary.min:,} - ${salary.max:,}"
+                                "${salary.min} - ${salary.max}"
                             }
                         }
                     }
                 }
                 
-                p { class: "mb-3", "{job.description}" }
+                p { class: "mb-3", {job.description.clone()} }
                 
                 if !job.requirements.is_empty() {
                     div { class: "mb-3",
@@ -275,12 +268,12 @@ fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
                             for req in job.requirements.iter().take(3) {
                                 li { class: "mb-1",
                                     i { class: "fas fa-check text-success me-2" }
-                                    "{req}"
+{req.clone()}
                                 }
                             }
                             if job.requirements.len() > 3 {
                                 li { class: "text-muted",
-                                    "... and {job.requirements.len() - 3} more requirements"
+{format!("... and {} more requirements", job.requirements.len() - 3)}
                                 }
                             }
                         }
@@ -289,20 +282,20 @@ fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
                 
                 div { class: "d-flex justify-content-between align-items-center",
                     small { class: "text-muted",
-                        "Posted {job.posted_date.format(\"%B %d, %Y\")}"
+{"Posted "}{job.posted_date.format("%B %d, %Y").to_string()}
                     }
                     div {
                         Button {
-                            color: ButtonColor::Outline(OutlineColor::Primary),
-                            size: ButtonSize::Small,
+                            variant: ButtonVariant::Primary,
+                            size: Size::Small,
                             class: "me-2",
                             i { class: "fas fa-external-link-alt me-1" }
                             "View"
                         }
                         Button {
-                            color: ButtonColor::Primary,
-                            size: ButtonSize::Small,
-                            onclick: move |_| on_apply.call(job.clone()),
+                            variant: ButtonVariant::Primary,
+                            size: Size::Small,
+                            onclick: move |_| on_apply.call(job_clone.clone()),
                             i { class: "fas fa-paper-plane me-1" }
                             "Quick Apply"
                         }
@@ -363,99 +356,92 @@ fn ApplicationModal(job: Job, on_close: EventHandler<()>) -> Element {
     };
 
     rsx! {
-        div { 
-            class: "modal d-block",
-            style: "background: rgba(0,0,0,0.5);",
-            div { class: "modal-dialog modal-lg modal-dialog-centered",
-                div { class: "modal-content",
-                    div { class: "modal-header",
-                        h5 { class: "modal-title", "Apply to {job.title}" }
-                        button {
-                            r#type: "button",
-                            class: "btn-close",
-                            onclick: move |_| on_close.call(())
-                        }
+        Modal {
+            size: ModalSize::Large,
+            class: "show d-block",
+            fade: true,
+            ModalHeader {
+                close_button: false,
+                h5 { class: "modal-title", "Apply to "{job.title.clone()} }
+                button { 
+                    r#type: "button", 
+                    class: "btn-close", 
+                    onclick: move |_| on_close.call(()) 
+                }
+            }
+            ModalBody {
+                div { class: "mb-3",
+                    Label { class: "form-label", "Cover Letter Tone" }
+                    Select {
+                        class: "form-select",
+                        value: format!("{:?}", tone()),
+                        onchange: move |evt: Event<FormData>| {
+                            tone.set(match evt.value().as_str() {
+                                "Professional" => CoverLetterTone::Professional,
+                                "Friendly" => CoverLetterTone::Friendly,
+                                "Enthusiastic" => CoverLetterTone::Enthusiastic,
+                                _ => CoverLetterTone::Professional,
+                            });
+                        },
+                        option { value: "Professional", "Professional" }
+                        option { value: "Friendly", "Friendly" }
+                        option { value: "Enthusiastic", "Enthusiastic" }
                     }
-                    div { class: "modal-body",
-                        div { class: "mb-3",
-                            Label { class: "form-label", "Cover Letter Tone" }
-                            select {
-                                class: "form-select",
-                                value: format!("{:?}", tone()),
-                                onchange: move |evt| {
-                                    tone.set(match evt.value().as_str() {
-                                        "Professional" => CoverLetterTone::Professional,
-                                        "Friendly" => CoverLetterTone::Friendly,
-                                        "Enthusiastic" => CoverLetterTone::Enthusiastic,
-                                        _ => CoverLetterTone::Professional,
-                                    });
-                                },
-                                option { value: "Professional", "Professional" }
-                                option { value: "Friendly", "Friendly" }
-                                option { value: "Enthusiastic", "Enthusiastic" }
-                            }
-                        }
-                        
-                        div { class: "mb-3",
-                            div { class: "d-flex justify-content-between align-items-center mb-2",
-                                Label { class: "form-label", "Cover Letter" }
-                                Button {
-                                    color: ButtonColor::Outline(OutlineColor::Primary),
-                                    size: ButtonSize::Small,
-                                    disabled: is_generating(),
-                                    onclick: generate_cover_letter_handler,
-                                    if is_generating() {
-                                        span { class: "spinner-border spinner-border-sm me-1" }
-                                        "Generating..."
-                                    } else {
-                                        span {
-                                            i { class: "fas fa-magic me-1" }
-                                            "Generate"
-                                        }
-                                    }
-                                }
-                            }
-                            textarea {
-                                class: "form-control",
-                                rows: "8",
-                                placeholder: "Your personalized cover letter will appear here...",
-                                value: cover_letter(),
-                                oninput: move |evt| cover_letter.set(evt.value())
-                            }
-                        }
-                        
-                        div { class: "form-check mb-3",
-                            input {
-                                class: "form-check-input",
-                                r#type: "checkbox",
-                                id: "auto-submit",
-                                checked: auto_submit(),
-                                onchange: move |evt| auto_submit.set(evt.checked())
-                            }
-                            Label { r#for: "auto-submit", class: "form-check-label",
-                                "Automatically submit application (when possible)"
-                            }
-                        }
-                    }
-                    div { class: "modal-footer",
+                }
+                
+                div { class: "mb-3",
+                    div { class: "d-flex justify-content-between align-items-center mb-2",
+                        label { class: "form-label", "Cover Letter" }
                         Button {
-                            color: ButtonColor::Secondary,
-                            onclick: move |_| on_close.call(()),
-                            "Cancel"
-                        }
-                        Button {
-                            color: ButtonColor::Primary,
-                            disabled: is_applying() || cover_letter().trim().is_empty(),
-                            onclick: submit_application,
-                            if is_applying() {
-                                span { class: "spinner-border spinner-border-sm me-2" }
-                                "Applying..."
+                            variant: ButtonVariant::Primary,
+                            outline: true,
+                            size: Size::Small,
+                            disabled: is_generating(),
+                            onclick: generate_cover_letter_handler,
+                            if is_generating() {
+                                span { class: "spinner-border spinner-border-sm me-1" }
+                                "Generating..."
                             } else {
                                 span {
-                                    i { class: "fas fa-paper-plane me-2" }
-                                    if auto_submit() { "Apply Now" } else { "Save Application" }
+                                    i { class: "fas fa-magic me-1" }
+                                    "Generate"
                                 }
                             }
+                        }
+                    }
+                    Textarea {
+                        class: "form-control",
+                        rows: 8,
+                        placeholder: "Your personalized cover letter will appear here...",
+                        value: cover_letter(),
+                        oninput: move |evt: Event<FormData>| cover_letter.set(evt.value())
+                    }
+                }
+                
+                Checkbox {
+                    id: "auto-submit",
+                    label: Some("Automatically submit application (when possible)".to_string()),
+                    checked: auto_submit(),
+                    onchange: move |evt: Event<FormData>| auto_submit.set(evt.checked())
+                }
+            }
+            ModalFooter {
+                Button {
+                    variant: ButtonVariant::Secondary,
+                    onclick: move |_| on_close.call(()),
+                    "Cancel"
+                }
+                Button {
+                    variant: ButtonVariant::Primary,
+                    disabled: is_applying() || cover_letter().trim().is_empty(),
+                    onclick: submit_application,
+                    if is_applying() {
+                        span { class: "spinner-border spinner-border-sm me-2" }
+                        "Applying..."
+                    } else {
+                        span {
+                            i { class: "fas fa-paper-plane me-2" }
+                            if auto_submit() { "Apply Now" } else { "Save Application" }
                         }
                     }
                 }

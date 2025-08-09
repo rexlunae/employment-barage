@@ -7,6 +7,7 @@ edition = "2021"
 dioxus = { workspace = true, features = ["router", "web"] }
 dioxus-bootstrap = "0.2.0"
 ui = { workspace = true }
+api = { workspace = true }
 getrandom = { version = "0.2", features = ["js"] }
 
 [features]

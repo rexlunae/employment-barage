@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_bootstrap::*;
 use api::{ResumeTemplate, generate_resume, analyze_resume, ResumeAnalysis};
+use crate::Label;
 
 #[component]
 pub fn ResumeBuilder() -> Element {
@@ -44,7 +45,7 @@ pub fn ResumeBuilder() -> Element {
     };
 
     rsx! {
-        Container { fluid: true,
+        Container {
             Row {
                 Col { lg: 4,
                     Card {
@@ -73,57 +74,37 @@ pub fn ResumeBuilder() -> Element {
                             
                             div { class: "mb-4",
                                 Label { class: "form-label fw-bold", "Content Selection" }
-                                div { class: "form-check",
-                                    input { 
-                                        class: "form-check-input", 
-                                        r#type: "checkbox", 
-                                        id: "include-summary",
-                                        checked: true
-                                    }
-                                    Label { r#for: "include-summary", class: "form-check-label", "Professional Summary" }
+                                Checkbox {
+                                    id: "include-summary",
+                                    label: Some("Professional Summary".to_string()),
+                                    checked: true
                                 }
-                                div { class: "form-check",
-                                    input { 
-                                        class: "form-check-input", 
-                                        r#type: "checkbox", 
-                                        id: "include-experience",
-                                        checked: true
-                                    }
-                                    Label { r#for: "include-experience", class: "form-check-label", "Work Experience" }
+                                Checkbox {
+                                    id: "include-experience", 
+                                    label: Some("Work Experience".to_string()),
+                                    checked: true
                                 }
-                                div { class: "form-check",
-                                    input { 
-                                        class: "form-check-input", 
-                                        r#type: "checkbox", 
-                                        id: "include-education",
-                                        checked: true
-                                    }
-                                    Label { r#for: "include-education", class: "form-check-label", "Education" }
+                                Checkbox {
+                                    id: "include-education",
+                                    label: Some("Education".to_string()),
+                                    checked: true
                                 }
-                                div { class: "form-check",
-                                    input { 
-                                        class: "form-check-input", 
-                                        r#type: "checkbox", 
-                                        id: "include-skills",
-                                        checked: true
-                                    }
-                                    Label { r#for: "include-skills", class: "form-check-label", "Skills" }
+                                Checkbox {
+                                    id: "include-skills",
+                                    label: Some("Skills".to_string()),
+                                    checked: true
                                 }
-                                div { class: "form-check",
-                                    input { 
-                                        class: "form-check-input", 
-                                        r#type: "checkbox", 
-                                        id: "include-projects",
-                                        checked: true
-                                    }
-                                    Label { r#for: "include-projects", class: "form-check-label", "Projects" }
+                                Checkbox {
+                                    id: "include-projects",
+                                    label: Some("Projects".to_string()),
+                                    checked: true
                                 }
                             }
                             
                             div { class: "d-grid gap-2",
                                 Button {
-                                    color: ButtonColor::Primary,
-                                    size: ButtonSize::Large,
+                                    variant: ButtonVariant::Primary,
+                                    size: Size::Large,
                                     disabled: is_generating(),
                                     onclick: handle_generate,
                                     if is_generating() {
@@ -137,7 +118,7 @@ pub fn ResumeBuilder() -> Element {
                                     }
                                 }
                                 Button {
-                                    color: ButtonColor::Outline(OutlineColor::Info),
+                                    variant: ButtonVariant::Secondary,
                                     onclick: handle_analyze,
                                     i { class: "fas fa-chart-line me-2" }
                                     "Analyze Resume"
@@ -157,8 +138,8 @@ pub fn ResumeBuilder() -> Element {
                                 h4 { "Resume Preview" }
                                 div {
                                     Button {
-                                        color: ButtonColor::Outline(OutlineColor::Primary),
-                                        size: ButtonSize::Small,
+                                        variant: ButtonVariant::Secondary,
+                                        size: Size::Small,
                                         i { class: "fas fa-download me-1" }
                                         "Download PDF"
                                     }
@@ -240,8 +221,8 @@ fn AnalysisCard(analysis: ResumeAnalysis) -> Element {
                 div { class: "mb-3",
                     div { class: "d-flex justify-content-between align-items-center mb-2",
                         span { "Overall Score" }
-                        Badge { color: BadgeColor::from_str(score_color).unwrap_or(BadgeColor::Primary), 
-                            "{analysis.score}/100"
+                        span { class: "badge bg-primary", 
+                            {format!("{}/100", analysis.score)}
                         }
                     }
                     div { class: "progress",
@@ -254,8 +235,9 @@ fn AnalysisCard(analysis: ResumeAnalysis) -> Element {
                 }
                 
                 div { class: "mb-3",
-                    small { class: "text-muted", "ATS Compatibility: {:.0}%" },
-                    format_args!("{:.1}", analysis.ats_compatibility * 100.0)
+                    small { class: "text-muted", 
+                        {format!("ATS Compatibility: {:.1}%", analysis.ats_compatibility * 100.0)}
+                    }
                 }
                 
                 if !analysis.suggestions.is_empty() {
@@ -263,17 +245,17 @@ fn AnalysisCard(analysis: ResumeAnalysis) -> Element {
                         h6 { "Suggestions for Improvement:" }
                         for suggestion in &analysis.suggestions {
                             Alert { 
-                                color: match suggestion.priority {
-                                    api::Priority::Critical => AlertColor::Danger,
-                                    api::Priority::High => AlertColor::Warning,
-                                    api::Priority::Medium => AlertColor::Info,
-                                    api::Priority::Low => AlertColor::Light,
+                                variant: match suggestion.priority {
+                                    api::Priority::Critical => AlertVariant::Danger,
+                                    api::Priority::High => AlertVariant::Warning, 
+                                    api::Priority::Medium => AlertVariant::Info,
+                                    api::Priority::Low => AlertVariant::Light,
                                 },
                                 class: "py-2",
                                 small { class: "fw-bold text-uppercase", 
-                                    "{:?}", suggestion.category
+                                    {format!("{:?}", suggestion.category)}
                                 }
-                                div { "{suggestion.message}" }
+                                div { {suggestion.message.clone()} }
                             }
                         }
                     }

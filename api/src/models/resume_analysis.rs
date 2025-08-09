@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ResumeAnalysis {
     pub id: Uuid,
     pub resume_id: Uuid,
@@ -13,7 +13,7 @@ pub struct ResumeAnalysis {
     pub analyzed_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Suggestion {
     pub category: SuggestionCategory,
     pub priority: Priority,
@@ -22,7 +22,7 @@ pub struct Suggestion {
     pub after: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum SuggestionCategory {
     Content,
     Formatting,
@@ -31,7 +31,7 @@ pub enum SuggestionCategory {
     Grammar,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Priority {
     Low,
     Medium,

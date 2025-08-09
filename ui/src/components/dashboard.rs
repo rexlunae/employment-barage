@@ -16,7 +16,7 @@ pub fn Dashboard() -> Element {
     rsx! {
         div { class: "min-vh-100",
             // Navigation Bar
-            nav { class: "navbar navbar-expand-lg shadow-sm",
+            nav { class: "navbar navbar-expand-lg navbar-light shadow-sm",
                 Container {
                     a { class: "navbar-brand fw-bold", href: "/",
                         i { class: "fas fa-briefcase me-2" }
@@ -24,32 +24,37 @@ pub fn Dashboard() -> Element {
                     }
                     
                     div { class: "navbar-nav ms-auto",
-                        button {
-                            class: "nav-link btn btn-link border-0",
+                        Button {
+                            variant: ButtonVariant::Link,
+                            class: "nav-link border-0",
                             onclick: move |_| current_view.set(DashboardView::Welcome),
                             i { class: "fas fa-home me-1" }
                             "Home"
                         }
-                        button {
-                            class: "nav-link btn btn-link border-0",
+                        Button {
+                            variant: ButtonVariant::Link,
+                            class: "nav-link border-0",
                             onclick: move |_| current_view.set(DashboardView::Profile),
                             i { class: "fas fa-user me-1" }
                             "Profile"
                         }
-                        button {
-                            class: "nav-link btn btn-link border-0",
+                        Button {
+                            variant: ButtonVariant::Link,
+                            class: "nav-link border-0",
                             onclick: move |_| current_view.set(DashboardView::Resumes),
                             i { class: "fas fa-file-alt me-1" }
                             "Resumes"
                         }
-                        button {
-                            class: "nav-link btn btn-link border-0",
+                        Button {
+                            variant: ButtonVariant::Link,
+                            class: "nav-link border-0",
                             onclick: move |_| current_view.set(DashboardView::Jobs),
                             i { class: "fas fa-search me-1" }
                             "Jobs"
                         }
-                        button {
-                            class: "nav-link btn btn-link border-0",
+                        Button {
+                            variant: ButtonVariant::Link,
+                            class: "nav-link border-0",
                             onclick: move |_| current_view.set(DashboardView::Applications),
                             i { class: "fas fa-paper-plane me-1" }
                             "Applications"

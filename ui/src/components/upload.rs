@@ -45,9 +45,8 @@ pub fn ResumeUpload(on_upload: EventHandler<ParsedResume>) -> Element {
                             match upload_status() {
                                 UploadStatus::Ready => rsx! {
                                     div { class: "upload-zone border border-dashed border-primary rounded p-5 text-center mb-3",
-                                        input {
-                                            r#type: "file",
-                                            accept: ".pdf,.docx",
+                                        Input {
+                                            input_type: InputType::File,
                                             class: "form-control",
                                             id: "resume-upload",
                                             onchange: handle_file_upload
@@ -71,7 +70,7 @@ pub fn ResumeUpload(on_upload: EventHandler<ParsedResume>) -> Element {
                                     }
                                 },
                                 UploadStatus::Success => rsx! {
-                                    div { class: "alert alert-success",
+                                    Alert { variant: AlertVariant::Success,
                                         div { class: "d-flex align-items-center",
                                             i { class: "fas fa-check-circle me-2" }
                                             div {
@@ -82,7 +81,7 @@ pub fn ResumeUpload(on_upload: EventHandler<ParsedResume>) -> Element {
                                     }
                                 },
                                 UploadStatus::Error(err) => rsx! {
-                                    div { class: "alert alert-danger",
+                                    Alert { variant: AlertVariant::Danger,
                                         div { class: "d-flex align-items-center",
                                             i { class: "fas fa-exclamation-triangle me-2" }
                                             div {

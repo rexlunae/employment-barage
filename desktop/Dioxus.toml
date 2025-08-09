@@ -1,0 +1,6 @@
+[application]
+name = "desktop"
+
+[platform.desktop]
+default_features = false
+features = ["desktop"]

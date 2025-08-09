@@ -1,65 +1,51 @@
 use dioxus::prelude::*;
 use dioxus_bootstrap::*;
-use api::{Profile, Experience, Education, Skill, Project, SkillCategory, SkillLevel};
+use api::{Profile, Experience};
 use uuid::Uuid;
 use chrono::Utc;
+use crate::Label;
 
 #[component]
 pub fn ProfileManager(profile: Signal<Option<Profile>>) -> Element {
     let mut active_tab = use_signal(|| ProfileTab::Personal);
     
     rsx! {
-        Container { fluid: true,
+        Container {
             Row {
                 Col { lg: 3,
                     Card {
                         CardBody {
                             h5 { class: "mb-3", "Profile Sections" }
-                            Nav { pills: true, vertical: true,
-                                NavItem {
-                                    NavLink {
-                                        href: "#",
-                                        active: active_tab() == ProfileTab::Personal,
-                                        onclick: move |_| active_tab.set(ProfileTab::Personal),
-                                        i { class: "fas fa-user me-2" }
-                                        "Personal Info"
-                                    }
+                            div { class: "nav nav-pills flex-column",
+                                button {
+                                    class: format!("nav-link {}", if active_tab() == ProfileTab::Personal { "active" } else { "" }),
+                                    onclick: move |_| active_tab.set(ProfileTab::Personal),
+                                    i { class: "fas fa-user me-2" }
+                                    "Personal Info"
                                 }
-                                NavItem {
-                                    NavLink {
-                                        href: "#",
-                                        active: active_tab() == ProfileTab::Experience,
-                                        onclick: move |_| active_tab.set(ProfileTab::Experience),
-                                        i { class: "fas fa-briefcase me-2" }
-                                        "Experience"
-                                    }
+                                button {
+                                    class: format!("nav-link {}", if active_tab() == ProfileTab::Experience { "active" } else { "" }),
+                                    onclick: move |_| active_tab.set(ProfileTab::Experience),
+                                    i { class: "fas fa-briefcase me-2" }
+                                    "Experience"
                                 }
-                                NavItem {
-                                    NavLink {
-                                        href: "#",
-                                        active: active_tab() == ProfileTab::Education,
-                                        onclick: move |_| active_tab.set(ProfileTab::Education),
-                                        i { class: "fas fa-graduation-cap me-2" }
-                                        "Education"
-                                    }
+                                button {
+                                    class: format!("nav-link {}", if active_tab() == ProfileTab::Education { "active" } else { "" }),
+                                    onclick: move |_| active_tab.set(ProfileTab::Education),
+                                    i { class: "fas fa-graduation-cap me-2" }
+                                    "Education"
                                 }
-                                NavItem {
-                                    NavLink {
-                                        href: "#",
-                                        active: active_tab() == ProfileTab::Skills,
-                                        onclick: move |_| active_tab.set(ProfileTab::Skills),
-                                        i { class: "fas fa-cog me-2" }
-                                        "Skills"
-                                    }
+                                button {
+                                    class: format!("nav-link {}", if active_tab() == ProfileTab::Skills { "active" } else { "" }),
+                                    onclick: move |_| active_tab.set(ProfileTab::Skills),
+                                    i { class: "fas fa-cog me-2" }
+                                    "Skills"
                                 }
-                                NavItem {
-                                    NavLink {
-                                        href: "#",
-                                        active: active_tab() == ProfileTab::Projects,
-                                        onclick: move |_| active_tab.set(ProfileTab::Projects),
-                                        i { class: "fas fa-code me-2" }
-                                        "Projects"
-                                    }
+                                button {
+                                    class: format!("nav-link {}", if active_tab() == ProfileTab::Projects { "active" } else { "" }),
+                                    onclick: move |_| active_tab.set(ProfileTab::Projects),
+                                    i { class: "fas fa-code me-2" }
+                                    "Projects"
                                 }
                             }
                         }
@@ -123,11 +109,11 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                             div { class: "mb-3",
                                 Label { r#for: "email", class: "form-label", "Email Address" }
                                 Input {
-                                    r#type: "email",
+                                    input_type: InputType::Email,
                                     id: "email",
                                     class: "form-control",
                                     value: form_data().email,
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.email = evt.value();
                                         form_data.set(data);
@@ -139,11 +125,11 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                             div { class: "mb-3",
                                 Label { r#for: "phone", class: "form-label", "Phone Number" }
                                 Input {
-                                    r#type: "tel",
+                                    input_type: InputType::Tel,
                                     id: "phone",
                                     class: "form-control",
                                     value: form_data().phone.unwrap_or_default(),
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.phone = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                         form_data.set(data);
@@ -156,12 +142,12 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                     div { class: "mb-3",
                         Label { r#for: "location", class: "form-label", "Location" }
                         Input {
-                            r#type: "text",
+                            input_type: InputType::Text,
                             id: "location",
                             class: "form-control",
                             placeholder: "City, State/Country",
                             value: form_data().location.unwrap_or_default(),
-                            oninput: move |evt| {
+                            oninput: move |evt: Event<FormData>| {
                                 let mut data = form_data();
                                 data.location = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                 form_data.set(data);
@@ -171,13 +157,13 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                     
                     div { class: "mb-3",
                         Label { r#for: "summary", class: "form-label", "Professional Summary" }
-                        textarea {
+                        Textarea {
                             id: "summary",
                             class: "form-control",
-                            rows: "4",
+                            rows: 4,
                             placeholder: "Write a brief summary of your professional background and goals...",
                             value: form_data().summary.unwrap_or_default(),
-                            oninput: move |evt| {
+                            oninput: move |evt: Event<FormData>| {
                                 let mut data = form_data();
                                 data.summary = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                 form_data.set(data);
@@ -190,12 +176,12 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                             div { class: "mb-3",
                                 Label { r#for: "linkedin", class: "form-label", "LinkedIn URL" }
                                 Input {
-                                    r#type: "url",
+                                    input_type: InputType::Url,
                                     id: "linkedin",
                                     class: "form-control",
                                     placeholder: "https://linkedin.com/in/yourprofile",
                                     value: form_data().linkedin_url.unwrap_or_default(),
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.linkedin_url = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                         form_data.set(data);
@@ -207,12 +193,12 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                             div { class: "mb-3",
                                 Label { r#for: "github", class: "form-label", "GitHub URL" }
                                 Input {
-                                    r#type: "url",
+                                    input_type: InputType::Url,
                                     id: "github",
                                     class: "form-control",
                                     placeholder: "https://github.com/yourusername",
                                     value: form_data().github_url.unwrap_or_default(),
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.github_url = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                         form_data.set(data);
@@ -224,12 +210,12 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                             div { class: "mb-3",
                                 Label { r#for: "portfolio", class: "form-label", "Portfolio URL" }
                                 Input {
-                                    r#type: "url",
+                                    input_type: InputType::Url,
                                     id: "portfolio",
                                     class: "form-control",
                                     placeholder: "https://yourportfolio.com",
                                     value: form_data().portfolio_url.unwrap_or_default(),
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.portfolio_url = if evt.value().is_empty() { None } else { Some(evt.value()) };
                                         form_data.set(data);
@@ -241,8 +227,8 @@ fn PersonalInfoForm(profile: Signal<Option<Profile>>) -> Element {
                     
                     div { class: "d-flex justify-content-end",
                         Button {
-                            color: ButtonColor::Primary,
-                            size: ButtonSize::Large,
+                            variant: ButtonVariant::Primary,
+                            size: Size::Large,
                             onclick: handle_save,
                             i { class: "fas fa-save me-2" }
                             "Save Changes"
@@ -265,7 +251,7 @@ fn ExperienceManager() -> Element {
                 div { class: "d-flex justify-content-between align-items-center",
                     h4 { "Work Experience" }
                     Button {
-                        color: ButtonColor::Primary,
+                        variant: ButtonVariant::Primary,
                         onclick: move |_| show_form.set(true),
                         i { class: "fas fa-plus me-2" }
                         "Add Experience"
@@ -328,12 +314,11 @@ fn ExperienceForm(on_save: EventHandler<Experience>, on_cancel: EventHandler<()>
                             div { class: "mb-3",
                                 Label { r#for: "company", class: "form-label", "Company *" }
                                 Input {
-                                    r#type: "text",
+                                    input_type: InputType::Text,
                                     id: "company",
                                     class: "form-control",
-                                    required: true,
                                     value: form_data().company,
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.company = evt.value();
                                         form_data.set(data);
@@ -345,12 +330,11 @@ fn ExperienceForm(on_save: EventHandler<Experience>, on_cancel: EventHandler<()>
                             div { class: "mb-3",
                                 Label { r#for: "position", class: "form-label", "Position *" }
                                 Input {
-                                    r#type: "text",
+                                    input_type: InputType::Text,
                                     id: "position",
                                     class: "form-control",
-                                    required: true,
                                     value: form_data().position,
-                                    oninput: move |evt| {
+                                    oninput: move |evt: Event<FormData>| {
                                         let mut data = form_data();
                                         data.position = evt.value();
                                         form_data.set(data);
@@ -362,13 +346,13 @@ fn ExperienceForm(on_save: EventHandler<Experience>, on_cancel: EventHandler<()>
                     
                     div { class: "mb-3",
                         Label { r#for: "description", class: "form-label", "Description" }
-                        textarea {
+                        Textarea {
                             id: "description",
                             class: "form-control",
-                            rows: "4",
+                            rows: 4,
                             placeholder: "Describe your role, responsibilities, and achievements...",
                             value: form_data().description,
-                            oninput: move |evt| {
+                            oninput: move |evt: Event<FormData>| {
                                 let mut data = form_data();
                                 data.description = evt.value();
                                 form_data.set(data);
@@ -378,12 +362,12 @@ fn ExperienceForm(on_save: EventHandler<Experience>, on_cancel: EventHandler<()>
                     
                     div { class: "d-flex justify-content-end gap-2",
                         Button {
-                            color: ButtonColor::Secondary,
+                            variant: ButtonVariant::Secondary,
                             onclick: move |_| on_cancel.call(()),
                             "Cancel"
                         }
                         Button {
-                            color: ButtonColor::Primary,
+                            variant: ButtonVariant::Primary,
                             onclick: move |_| {
                                 on_save.call(form_data());
                             },
@@ -415,8 +399,9 @@ fn ExperienceCard(experience: Experience) -> Element {
                     }
                     div { class: "text-end",
                         Button {
-                            color: ButtonColor::Outline(OutlineColor::Secondary),
-                            size: ButtonSize::Small,
+                            variant: ButtonVariant::Secondary,
+                            outline: true,
+                            size: Size::Small,
                             i { class: "fas fa-edit" }
                         }
                     }

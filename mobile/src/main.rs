@@ -1,16 +1,19 @@
 use dioxus::prelude::*;
-
-use ui::Navbar;
-use views::{Home};
-
-mod views;
+use ui::{DashboardView, ProfileView, ResumesView, JobsView, ApplicationsView, SharedNavigation};
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 enum Route {
-    #[layout(MobileNavbar)]
     #[route("/")]
-    Home {},
+    Dashboard {},
+    #[route("/profile")]
+    Profile {},
+    #[route("/resumes")]
+    Resumes {},
+    #[route("/jobs")]
+    Jobs {},
+    #[route("/applications")]
+    Applications {},
 }
 
 fn main() {
@@ -26,18 +29,87 @@ fn App() -> Element {
     }
 }
 
-/// A mobile-specific Router around the shared `Navbar` component
-/// which allows us to use the mobile-specific `Route` enum.
-#[component]
-fn MobileNavbar() -> Element {
+fn create_navigation() -> Element {
     rsx! {
-        Navbar {
-            Link {
-                to: Route::Home {},
-                "Home"
-            }
+        Link {
+            to: Route::Dashboard {},
+            class: "nav-link btn btn-link border-0",
+            i { class: "fas fa-home me-1" }
+            "Dashboard"
         }
-
-        Outlet::<Route> {}
+        Link {
+            to: Route::Profile {},
+            class: "nav-link btn btn-link border-0",
+            i { class: "fas fa-user me-1" }
+            "Profile"
+        }
+        Link {
+            to: Route::Resumes {},
+            class: "nav-link btn btn-link border-0",
+            i { class: "fas fa-file-alt me-1" }
+            "Resumes"
+        }
+        Link {
+            to: Route::Jobs {},
+            class: "nav-link btn btn-link border-0",
+            i { class: "fas fa-search me-1" }
+            "Jobs"
+        }
+        Link {
+            to: Route::Applications {},
+            class: "nav-link btn btn-link border-0",
+            i { class: "fas fa-paper-plane me-1" }
+            "Applications"
+        }
     }
+}
+
+#[component]
+fn Dashboard() -> Element {
+    let navigation = rsx! {
+        SharedNavigation { 
+            children: create_navigation()
+        }
+    };
+    rsx! { DashboardView { navigation: navigation } }
+}
+
+#[component]
+fn Profile() -> Element {
+    let navigation = rsx! {
+        SharedNavigation { 
+            children: create_navigation()
+        }
+    };
+    rsx! { ProfileView { navigation: navigation } }
+}
+
+#[component]
+fn Resumes() -> Element {
+    let navigation = rsx! {
+        SharedNavigation { 
+            children: create_navigation()
+        }
+    };
+    rsx! { ResumesView { navigation: navigation } }
+}
+
+#[component]
+fn Jobs() -> Element {
+    let navigation = rsx! {
+        SharedNavigation { 
+            children: create_navigation()
+        }
+    };
+    rsx! { JobsView { navigation: navigation } }
+}
+
+#[component]
+fn Applications() -> Element {
+    let navigation = rsx! {
+        SharedNavigation { 
+            children: create_navigation()
+        }
+    };
+    rsx! { ApplicationsView { navigation: navigation } }
 }
