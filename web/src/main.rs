@@ -1,21 +1,6 @@
 use dioxus::prelude::*;
 use dioxus_bootstrap::GlobalTheme;
-use ui::views::{Dashboard, Profile, Resumes, Jobs, Applications};
-
-#[derive(Debug, Clone, Routable, PartialEq)]
-#[rustfmt::skip]
-enum Route {
-    #[route("/")]
-    Dashboard {},
-    #[route("/profile")]
-    Profile {},
-    #[route("/resumes")]
-    Resumes {},
-    #[route("/jobs")]
-    Jobs {},
-    #[route("/applications")]
-    Applications {},
-}
+use ui::Route;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 

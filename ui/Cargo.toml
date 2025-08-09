@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dioxus = { workspace = true }
+dioxus = { workspace = true, features = ["router"] }
 api = { workspace = true }
 dioxus-bootstrap = "0.2.0"
 serde = { version = "1.0", features = ["derive"] }

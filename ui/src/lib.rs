@@ -6,6 +6,7 @@ pub mod job_search;
 pub mod resume_builder;
 pub mod views;
 pub mod shared_navigation;
+pub mod routes;
 
 // Re-export main components for easy access
 pub use components::Dashboard;
@@ -22,6 +23,9 @@ pub use resume_builder::ResumeBuilder;
 // Re-export views
 pub use views::{Dashboard as DashboardView, Profile as ProfileView, Resumes as ResumesView, Jobs as JobsView, Applications as ApplicationsView};
 pub use shared_navigation::SharedNavigation;
+
+// Re-export routes
+pub use routes::Route;
 
 
 // Custom Label component since dioxus-bootstrap doesn't have one
