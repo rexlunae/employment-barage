@@ -4,6 +4,7 @@ use crate::{Container, Row, Col, Button, ButtonVariant, ButtonGroup, Size, Share
 #[component]
 pub fn Applications() -> Element {
     rsx! { 
+        document::Title { "My Applications - Employment Barage | Track Your Job Applications" }
         div { class: "min-vh-100",
             SharedNavigation {}
             

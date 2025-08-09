@@ -4,6 +4,7 @@ use crate::SharedNavigation;
 #[component]
 pub fn Jobs() -> Element {
     rsx! { 
+        document::Title { "Job Search - Employment Barage | Find & Apply to Jobs Automatically" }
         div { class: "min-vh-100",
             SharedNavigation {}
             

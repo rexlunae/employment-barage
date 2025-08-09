@@ -4,6 +4,7 @@ use crate::SharedNavigation;
 #[component]
 pub fn Profile() -> Element {
     rsx! { 
+        document::Title { "Profile Manager - Employment Barage | Build Your Professional Profile" }
         div { class: "min-vh-100",
             SharedNavigation {}
             

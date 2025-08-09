@@ -11,6 +11,7 @@ pub fn Dashboard() -> Element {
     };
 
     rsx! { 
+        document::Title { "Dashboard - Employment Barage | Transform Your Career Journey" }
         div { class: "min-vh-100",
             SharedNavigation {}
             
