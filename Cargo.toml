@@ -1,0 +1,32 @@
+[workspace]
+resolver = "2"
+members = [
+    "ui",
+    "web",
+    "desktop",
+    "mobile",
+    "api",
+]
+
+[workspace.dependencies]
+dioxus = { version = "0.6.0" }
+getrandom = { version = "0.2", features = ["js"] }
+uuid = { version = "1.6", features = ["v4", "serde", "js"] }
+
+# workspace
+ui = { path = "ui" }
+api = { path = "api" }
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
+
