@@ -105,16 +105,40 @@ pub async fn generate_cover_letter(
     user_profile_id: String,
     tone: CoverLetterTone
 ) -> Result<String, ServerFnError> {
-    // TODO: Integrate with AI API (OpenAI/Claude)
-    // For now, return template-based cover letters
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use crate::services::ai_service::{AiProvider, generate_cover_letter as ai_generate};
+        
+        // Use local Ollama by default
+        let provider = AiProvider::default();
+        
+        // TODO: Fetch actual job and profile from database
+        let job_title = "Software Engineer";
+        let company = "Tech Company";
+        let job_description = "Looking for an experienced developer...";
+        let resume_summary = "Experienced software engineer with 15+ years in Python, Rust, and web development.";
+        
+        let tone_str = match tone {
+            CoverLetterTone::Professional => "professional and formal",
+            CoverLetterTone::Friendly => "friendly and conversational",
+            CoverLetterTone::Enthusiastic => "enthusiastic and energetic",
+        };
+        
+        ai_generate(&provider, job_title, company, job_description, resume_summary, tone_str)
+            .await
+            .map_err(|e| ServerFnError::new(e.to_string()))
+    }
     
-    let cover_letter = match tone {
-        CoverLetterTone::Professional => generate_professional_cover_letter(&job_id, &user_profile_id).await,
-        CoverLetterTone::Friendly => generate_friendly_cover_letter(&job_id, &user_profile_id).await,
-        CoverLetterTone::Enthusiastic => generate_enthusiastic_cover_letter(&job_id, &user_profile_id).await,
-    };
-    
-    cover_letter.map_err(|e| ServerFnError::new(e.to_string()))
+    #[cfg(target_arch = "wasm32")]
+    {
+        // Fallback for WASM - use template
+        let cover_letter = match tone {
+            CoverLetterTone::Professional => generate_professional_cover_letter(&job_id, &user_profile_id).await,
+            CoverLetterTone::Friendly => generate_friendly_cover_letter(&job_id, &user_profile_id).await,
+            CoverLetterTone::Enthusiastic => generate_enthusiastic_cover_letter(&job_id, &user_profile_id).await,
+        };
+        cover_letter.map_err(|e| ServerFnError::new(e.to_string()))
+    }
 }
 
 /// Apply to a job automatically
