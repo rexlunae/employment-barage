@@ -39,6 +39,70 @@ pub async fn search_jobs(
     }
 }
 
+/// Fetch jobs from external sources and store them in the database
+/// 
+/// This function fetches jobs from free job sources (Remotive, HN Who's Hiring, Arbeitnow)
+/// and stores them in SQLite for later searching.
+#[server(FetchExternalJobs)]
+pub async fn fetch_external_jobs(
+    keywords: Option<String>,
+    location: Option<String>,
+    limit: Option<u32>,
+) -> Result<FetchJobsResult, ServerFnError> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use crate::services::job_sources::JobAggregator;
+        use crate::db::{get_database, SqliteJobRepository, JobRepository};
+        
+        let aggregator = JobAggregator::new();
+        
+        let jobs = aggregator.fetch_all(
+            keywords.as_deref(),
+            location.as_deref(),
+            limit,
+        ).await.map_err(|e| ServerFnError::new(e.to_string()))?;
+        
+        // Store jobs in the database
+        let db = get_database();
+        let repo = SqliteJobRepository::new(db.clone());
+        
+        let mut saved_count = 0;
+        let mut error_count = 0;
+        
+        for job in &jobs {
+            match repo.upsert_by_source(job).await {
+                Ok(_) => saved_count += 1,
+                Err(e) => {
+                    tracing::warn!("Failed to save job {}: {}", job.title, e);
+                    error_count += 1;
+                }
+            }
+        }
+        
+        Ok(FetchJobsResult {
+            fetched: jobs.len() as u32,
+            saved: saved_count,
+            errors: error_count,
+        })
+    }
+    
+    #[cfg(target_arch = "wasm32")]
+    {
+        Err(ServerFnError::new("Job fetching only available on server"))
+    }
+}
+
+/// Result of fetching external jobs
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct FetchJobsResult {
+    /// Number of jobs fetched from external sources
+    pub fetched: u32,
+    /// Number of jobs successfully saved to database
+    pub saved: u32,
+    /// Number of jobs that failed to save
+    pub errors: u32,
+}
+
 /// Get saved jobs
 #[server(GetSavedJobs)]
 pub async fn get_saved_jobs() -> Result<Vec<Job>, ServerFnError> {

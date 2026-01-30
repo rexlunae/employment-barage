@@ -11,7 +11,7 @@ pub mod resume_analysis;
 
 // Re-export all models for easy importing
 pub use user::User;
-pub use profile::Profile;
+pub use profile::{Profile, FullProfile};
 pub use experience::Experience;
 pub use education::Education;
 pub use skill::{Skill, SkillCategory, SkillLevel};

@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS profiles (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL DEFAULT '',
+    email TEXT NOT NULL DEFAULT '',
     headline TEXT,
     summary TEXT,
     location TEXT,
@@ -25,6 +27,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(user_id)
 );
+
+-- Add name and email columns if they don't exist (for existing databases)
+-- SQLite doesn't support IF NOT EXISTS for ALTER TABLE, so we use a migration-safe approach
 
 -- Work experience
 CREATE TABLE IF NOT EXISTS experiences (

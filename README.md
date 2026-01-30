@@ -1,72 +1,150 @@
-# Development
+# Employment Barage
 
-Your new workspace contains a member crate for each of the web, desktop and mobile platforms, a `ui` crate for shared components and a `api` crate for shared backend logic:
+A cross-platform job search and application automation tool built with Dioxus (Rust).
+
+## Features
+
+- **Resume Upload & Parsing** - PDF/DOCX parsing with automatic data extraction
+- **Profile Management** - Comprehensive user profiles with experience, education, skills
+- **Resume Generation** - Multiple templates (Professional, Modern, Creative, Simple, Academic)
+- **Resume Analysis** - AI-powered suggestions and ATS compatibility scoring
+- **Job Search** - Multi-platform job searching from various sources
+- **Application Automation** - AI-generated cover letters
+
+## Job Sources
+
+Employment Barage fetches jobs from multiple sources:
+
+### Free Sources (No API Key Required)
+
+| Source | Description | Geographic Focus |
+|--------|-------------|------------------|
+| **Remotive** | Remote job listings | Worldwide |
+| **HN Who's Hiring** | Monthly Hacker News hiring threads | Tech/Worldwide |
+| **Arbeitnow** | Job board focused on Europe | Germany/EU |
+
+### API Key Required
+
+| Source | API Info | Status |
+|--------|----------|--------|
+| **LinkedIn** | Official API (requires business account) | Not implemented |
+| **Indeed** | Publisher API (requires approval) | Not implemented |
+| **Glassdoor** | Partner API (requires approval) | Not implemented |
+
+## Job Source API Documentation
+
+### Remotive
+- **URL**: https://remotive.com/api/remote-jobs
+- **Docs**: https://remotive.com/api-documentation
+- **Rate Limit**: ~4 requests/day recommended
+- **Key Required**: No
+
+### Hacker News Who's Hiring
+- **URL**: https://hacker-news.firebaseio.com/v0/
+- **Docs**: https://github.com/HackerNews/API
+- **Rate Limit**: None specified
+- **Key Required**: No
+- **Notes**: Scrapes monthly "Ask HN: Who is hiring?" threads
+
+### Arbeitnow
+- **URL**: https://www.arbeitnow.com/api/job-board-api
+- **Rate Limit**: Not specified
+- **Key Required**: No
+- **Notes**: Primarily German/EU jobs, some require German language
+
+## Project Structure
 
 ```
-your_project/
-├─ web/
-│  ├─ ... # Web specific UI/logic
-├─ desktop/
-│  ├─ ... # Desktop specific UI/logic
-├─ mobile/
-│  ├─ ... # Mobile specific UI/logic
-├─ api/
-│  ├─ ... # All shared server logic
-├─ ui/
-│  ├─ ... # Component shared between multiple platforms
+employment-barage/
+├─ api/           # Shared backend logic (server functions, job sources, database)
+│  └─ src/
+│     ├─ db/           # SQLite database layer
+│     ├─ models/       # Data models (Job, Profile, Resume, etc.)
+│     └─ services/     # Business logic
+│        ├─ job_sources/   # Job API clients (Remotive, HN, Arbeitnow)
+│        ├─ job_service.rs # Job search and application services
+│        └─ ai_service.rs  # Cover letter generation (Ollama/OpenAI/Claude)
+├─ ui/            # Shared UI components
+├─ web/           # Web frontend
+├─ desktop/       # Desktop app (Tauri)
+├─ mobile/        # Mobile app
+└─ Cargo.toml     # Workspace config
 ```
 
-## Platform crates
+## Development
 
-Each platform crate contains the entry point for the platform, and any assets, components and dependencies that are specific to that platform. For example, the desktop crate in the workspace looks something like this:
+### Prerequisites
 
-```
-desktop/ # The desktop crate contains all platform specific UI, logic and dependencies for the desktop app
-├─ assets/ # Assets used by the desktop app - Any platform specific assets should go in this folder
-├─ src/
-│  ├─ main.rs # The entrypoint for the desktop app. It also defines the routes for the desktop platform
-│  ├─ views/ # The views each route will render in the desktop version of the app
-│  │  ├─ mod.rs # Defines the module for the views route and re-exports the components for each route
-│  │  ├─ blog.rs # The component that will render at the /blog/:id route
-│  │  ├─ home.rs # The component that will render at the / route
-├─ Cargo.toml # The desktop crate's Cargo.toml - This should include all desktop specific dependencies
-```
+- Rust (latest stable)
+- Dioxus CLI: `cargo install dioxus-cli`
 
-When you start developing with the workspace setup each of the platform crates will look almost identical. The UI starts out exactly the same on all platforms. However, as you continue developing your application, this setup makes it easy to let the views for each platform change independently.
+### Running
 
-## Shared UI crate
-
-The workspace contains a `ui` crate with components that are shared between multiple platforms. You should put any UI elements you want to use in multiple platforms in this crate. You can also put some shared client side logic in this crate, but be careful to not pull in platform specific dependencies. The `ui` crate starts out something like this:
-
-```
-ui/
-├─ src/
-│  ├─ lib.rs # The entrypoint for the ui crate
-│  ├─ hero.rs # The Hero component that will be used in every platform
-│  ├─ echo.rs # The shared echo component that communicates with the server
-│  ├─ navbar.rs # The Navbar component that will be used in the layout of every platform's router
-```
-
-## Shared backend logic
-
-The workspace contains a `api` crate with shared backend logic. This crate defines all of the shared server functions for all platforms. Server functions are async functions that expose a public API on the server. They can be called like a normal async function from the client. When you run `dx serve`, all of the server functions will be collected in the server build and hosted on a public API for the client to call. The `api` crate starts out something like this:
-
-```
-api/
-├─ src/
-│  ├─ lib.rs # Exports a server function that echos the input string
-```
-
-### Serving Your App
-
-Navigate to the platform crate of your choice:
 ```bash
-cd web
+# Web development server
+cd web && dx serve
+
+# Desktop application
+cd desktop && dx serve
+
+# Mobile application
+cd mobile && dx serve
 ```
 
-and serve:
+### Building
 
 ```bash
-dx serve
+cargo build               # Build all workspace members
+cargo build -p api        # Build specific crate
 ```
 
+### Testing
+
+```bash
+cargo test                # Run all tests
+cargo test -p api         # Test specific crate
+```
+
+## Using Job Sources Programmatically
+
+```rust
+use api::services::job_sources::JobAggregator;
+
+// Create an aggregator that fetches from all free sources
+let aggregator = JobAggregator::new();
+
+// Fetch jobs with optional filters
+let jobs = aggregator.fetch_all(
+    Some("rust developer"),  // keywords
+    Some("remote"),          // location
+    Some(50),                // limit per source
+).await?;
+
+// Jobs are automatically stored in SQLite when using the server function
+let result = fetch_external_jobs(
+    Some("python".to_string()),
+    Some("remote".to_string()),
+    Some(100),
+).await?;
+
+println!("Fetched {} jobs, saved {}", result.fetched, result.saved);
+```
+
+## Database
+
+Jobs are stored in SQLite at:
+- Linux: `~/.local/share/employment-barage/data.db`
+- macOS: `~/Library/Application Support/employment-barage/data.db`
+- Windows: `%APPDATA%\employment-barage\data.db`
+
+## AI Cover Letter Generation
+
+Supports multiple AI backends for cover letter generation:
+
+- **Ollama** (default) - Local, free, no API key needed
+- **OpenAI** - Requires `OPENAI_API_KEY`
+- **Claude** - Requires `ANTHROPIC_API_KEY`
+
+## License
+
+MIT

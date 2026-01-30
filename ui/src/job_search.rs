@@ -215,6 +215,9 @@ fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
         JobSource::Indeed => "success", 
         JobSource::Glassdoor => "info",
         JobSource::AngelList => "warning",
+        JobSource::Remotive => "danger",
+        JobSource::HNWhoIsHiring => "dark",
+        JobSource::Arbeitnow => "info",
         JobSource::Other(_) => "secondary",
     };
 
@@ -223,6 +226,9 @@ fn JobCard(job: Job, on_apply: EventHandler<Job>) -> Element {
         JobSource::Indeed => "Indeed",
         JobSource::Glassdoor => "Glassdoor", 
         JobSource::AngelList => "AngelList",
+        JobSource::Remotive => "Remotive",
+        JobSource::HNWhoIsHiring => "HN Who's Hiring",
+        JobSource::Arbeitnow => "Arbeitnow",
         JobSource::Other(name) => name,
     };
 

@@ -91,12 +91,14 @@ impl ResumeParser {
         let portfolio_url = self.extract_url(text, "portfolio")
             .or_else(|| self.extract_url(text, "website"));
 
-        let _name = self.extract_name(text)?;
+        let name = self.extract_name(text)?;
         let location = self.extract_location(text);
 
         Ok(Profile {
             id: Uuid::new_v4(),
             user_id: Uuid::new_v4(), // Will be set by the caller
+            name,
+            headline: None, // Will be extracted from resume header
             summary: None, // Will be extracted from summary section
             phone,
             email,

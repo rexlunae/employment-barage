@@ -76,6 +76,7 @@ dependencies = [
  "chrono",
  "dioxus",
  "dirs 5.0.1",
+ "futures",
  "getrandom 0.2.16",
  "mime",
  "regex",
@@ -85,6 +86,7 @@ dependencies = [
  "sqlx",
  "thiserror 1.0.69",
  "tokio",
+ "tracing",
  "uuid",
 ]
 
