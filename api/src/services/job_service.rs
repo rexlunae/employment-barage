@@ -2,6 +2,9 @@ use dioxus::prelude::*;
 use crate::models::*;
 use anyhow::Result;
 
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::{get_database, SqliteJobRepository, JobRepository, JobSearchQuery};
+
 /// Search for jobs across multiple platforms
 #[server(SearchJobs)]
 pub async fn search_jobs(
@@ -10,36 +13,89 @@ pub async fn search_jobs(
     salary_min: Option<u32>,
     sources: Vec<JobSource>
 ) -> Result<Vec<Job>, ServerFnError> {
-    // In a real implementation, this would:
-    // 1. Scrape or call APIs for each job source
-    // 2. Parse and normalize job data
-    // 3. Return aggregated results
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let db = get_database();
+        let repo = SqliteJobRepository::new(db.clone());
+        
+        let query = JobSearchQuery {
+            keywords: if keywords.is_empty() { None } else { Some(keywords) },
+            location: if location.is_empty() { None } else { Some(location) },
+            min_salary: salary_min,
+            sources,
+            remote_only: false,
+            limit: Some(50),
+            offset: None,
+        };
+        
+        repo.search(&query)
+            .await
+            .map_err(|e| ServerFnError::new(e.to_string()))
+    }
     
-    // For now, return mock data
-    Ok(vec![
-        Job {
-            id: uuid::Uuid::new_v4(),
-            title: "Senior Software Engineer".to_string(),
-            company: "Tech Corp".to_string(),
-            location: location.clone(),
-            description: "We are looking for a senior software engineer...".to_string(),
-            requirements: vec![
-                "5+ years experience".to_string(),
-                "Proficiency in Rust".to_string(),
-                "Experience with web frameworks".to_string()
-            ],
-            salary_range: Some(SalaryRange {
-                min: 120000,
-                max: 180000,
-                currency: "USD".to_string(),
-                period: SalaryPeriod::Annual,
-            }),
-            source: JobSource::LinkedIn,
-            source_url: "https://linkedin.com/jobs/123".to_string(),
-            posted_date: chrono::Utc::now(),
-            scraped_at: chrono::Utc::now(),
-        }
-    ])
+    #[cfg(target_arch = "wasm32")]
+    {
+        Ok(Vec::new())
+    }
+}
+
+/// Get saved jobs
+#[server(GetSavedJobs)]
+pub async fn get_saved_jobs() -> Result<Vec<Job>, ServerFnError> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let db = get_database();
+        let repo = SqliteJobRepository::new(db.clone());
+        
+        repo.get_saved()
+            .await
+            .map_err(|e| ServerFnError::new(e.to_string()))
+    }
+    
+    #[cfg(target_arch = "wasm32")]
+    {
+        Ok(Vec::new())
+    }
+}
+
+/// Save a job
+#[server(SaveJob)]
+pub async fn save_job(job_id: String) -> Result<(), ServerFnError> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let db = get_database();
+        let repo = SqliteJobRepository::new(db.clone());
+        let id = uuid::Uuid::parse_str(&job_id).map_err(|e| ServerFnError::new(e.to_string()))?;
+        
+        repo.save(&id)
+            .await
+            .map_err(|e| ServerFnError::new(e.to_string()))
+    }
+    
+    #[cfg(target_arch = "wasm32")]
+    {
+        Ok(())
+    }
+}
+
+/// Unsave a job
+#[server(UnsaveJob)]
+pub async fn unsave_job(job_id: String) -> Result<(), ServerFnError> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let db = get_database();
+        let repo = SqliteJobRepository::new(db.clone());
+        let id = uuid::Uuid::parse_str(&job_id).map_err(|e| ServerFnError::new(e.to_string()))?;
+        
+        repo.unsave(&id)
+            .await
+            .map_err(|e| ServerFnError::new(e.to_string()))
+    }
+    
+    #[cfg(target_arch = "wasm32")]
+    {
+        Ok(())
+    }
 }
 
 /// Generate a personalized cover letter for a job
@@ -49,10 +105,8 @@ pub async fn generate_cover_letter(
     user_profile_id: String,
     tone: CoverLetterTone
 ) -> Result<String, ServerFnError> {
-    // In a real implementation, this would:
-    // 1. Fetch job details and user profile
-    // 2. Use AI to generate personalized content
-    // 3. Return formatted cover letter
+    // TODO: Integrate with AI API (OpenAI/Claude)
+    // For now, return template-based cover letters
     
     let cover_letter = match tone {
         CoverLetterTone::Professional => generate_professional_cover_letter(&job_id, &user_profile_id).await,
@@ -72,11 +126,7 @@ pub async fn apply_to_job(
     resume_id: String,
     auto_submit: bool
 ) -> Result<JobApplication, ServerFnError> {
-    // In a real implementation, this would:
-    // 1. Navigate to the job application page
-    // 2. Fill out forms automatically
-    // 3. Upload resume and cover letter
-    // 4. Submit application (if auto_submit is true)
+    // TODO: Save to database and potentially trigger browser automation
     
     Ok(JobApplication {
         id: uuid::Uuid::new_v4(),
@@ -96,7 +146,7 @@ pub async fn apply_to_job(
 /// Get user's job applications
 #[server(GetUserApplications)]
 pub async fn get_user_applications(user_id: String) -> Result<Vec<JobApplication>, ServerFnError> {
-    // In a real implementation, this would query the database
+    // TODO: Query from database
     Ok(Vec::new())
 }
 
@@ -107,7 +157,7 @@ pub async fn update_application_status(
     status: ApplicationStatus,
     notes: Option<String>
 ) -> Result<JobApplication, ServerFnError> {
-    // In a real implementation, this would update the database
+    // TODO: Update in database
     Ok(JobApplication {
         id: uuid::Uuid::parse_str(&application_id).map_err(|e| ServerFnError::new(e.to_string()))?,
         user_id: uuid::Uuid::new_v4(),
